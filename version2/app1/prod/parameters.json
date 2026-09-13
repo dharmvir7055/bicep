@@ -1,0 +1,14 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location":       { "value": "southeastasia" },
+    "keyVaultName":   { "value": "kv-app1-prod" },
+    "planName":       { "value": "plan-app1-prod" },
+    "planSku":        { "value": "P1v3" },
+    "planCapacity":   { "value": 3 },
+    "appServiceName": { "value": "app-app1-prod" },
+    "linuxFxVersion": { "value": "DOTNET|8.0" },
+    "environmentTag": { "value": "prod" }
+  }
+}

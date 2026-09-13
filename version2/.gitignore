@@ -1,0 +1,4 @@
+﻿*.zip
+*.bak
+.vscode/
+.idea/

@@ -1,0 +1,3 @@
+﻿*.yml text eol=lf
+*.bicep text eol=lf
+*.json text eol=lf
