@@ -7,12 +7,10 @@
     type: string
   - name: resourceGroupName
     type: string
-  - name: dependsOn
-    type: object
-    default: []
-
-  - name: approvalEnvironment
+  - name: variableGroupName       # NEW
     type: string
+  - name: dependsOn
+    type: string                  # was object — now string
     default: ''
   
 jobs:
@@ -26,6 +24,8 @@ jobs:
     # ${{ if ne(parameters.approvalEnvironment, '') }}:
     #   environment: ${{ parameters.approvalEnvironment  }}
     environment: ${{parameters.environment}}
+    variables:
+      - group: ${{ parameters.variableGroupName }}   
     strategy:
       runOnce:
         deploy:
@@ -42,7 +42,7 @@ jobs:
                 Get-ChildItem -Path "$(System.DefaultWorkingDirectory)" -Recurse -Depth 2 -Force | Select-Object FullName
               displayName: 'Debug: Inspect working directory'
             - script: |
-                APP_DIR="$(System.DefaultWorkingDirectory)/bicepv2/${{ parameters.appName }}/${{ parameters.environment }}"
+                APP_DIR="$(System.DefaultWorkingDirectory)/version2/apps/${{ parameters.appName }}/${{ parameters.environment }}"
                 echo "Looking for: $APP_DIR"
                 ls -la "$APP_DIR" || { echo "FATAL: $APP_DIR not found"; exit 1; }
               displayName: 'Verify folder exists'
@@ -57,7 +57,7 @@ jobs:
                   set -e
                   az bicep install
                   az bicep build \
-                    --file "$(System.DefaultWorkingDirectory)/bicepv2/${{ parameters.appName }}/${{ parameters.environment }}/main.bicep"
+                    --file "$(System.DefaultWorkingDirectory)/version2/apps/${{ parameters.appName }}/${{ parameters.environment }}/main.bicep"
 
             - task: AzureCLI@2
               displayName: 'What-If: ${{ parameters.appName }} / ${{ parameters.environment }}'
@@ -69,8 +69,8 @@ jobs:
                   set -e
                   az deployment group what-if \
                     --resource-group ${{ parameters.resourceGroupName }} \
-                    --template-file "$(System.DefaultWorkingDirectory)/bicepv2/${{ parameters.appName }}/${{ parameters.environment }}/main.bicep" \
-                    --parameters "$(System.DefaultWorkingDirectory)/bicepv2/${{ parameters.appName }}/${{ parameters.environment }}/parameters.json"
+                    --template-file "$(System.DefaultWorkingDirectory)/version2/apps/${{ parameters.appName }}/${{ parameters.environment }}/main.bicep" \
+                    --parameters "$(System.DefaultWorkingDirectory)/version2/apps/${{ parameters.appName }}/${{ parameters.environment }}/parameters.json"
 
             # - task: AzureCLI@2
             #   displayName: 'Deploy: ${{ parameters.appName }} / ${{ parameters.environment }}'

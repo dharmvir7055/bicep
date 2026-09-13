@@ -1,0 +1,29 @@
+parameters:
+  - name: dependsOnStage
+    type: string
+    default: Summary
+  - name: environments
+    type: object
+    default:
+      - name: dev
+        dependsOn: ''
+      - name: test
+        dependsOn: dev
+      - name: prod
+        dependsOn: test
+
+stages:
+  - stage: App1
+    displayName: 'App: app1'
+    dependsOn: ${{ parameters.dependsOnStage }}
+    jobs:
+      - ${{ each env in parameters.environments }}:
+        - template: ../../templates/deploy-bicep-template.yml
+          parameters:
+            appName: 'app1'
+            environment: ${{ env.name }}
+            azureServiceConnection: $(azureServiceConnection)
+            resourceGroupName: $(resourceGroupName)
+            variableGroupName: vg-app1-${{ env.name }}
+            ${{ if ne(env.dependsOn, '') }}:
+              dependsOn: 'Deploy_app1_${{ env.dependsOn }}'

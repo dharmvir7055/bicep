@@ -39,18 +39,16 @@ stages:
               echo "======================================"
             displayName: 'Print selection'
 
-  # ── App 1 ──────────────────────────────────────────────────
+    # ── App 1 ──────────────────────────────────────────────────
   - ${{ if eq(parameters.deployApp1, true) }}:
-    - template: templates/app-stage.yml
+    - template: apps/app1/pipeline.yml
       parameters:
-        appName: 'app1'
         dependsOnStage: 'Summary'
 
   # ── App 2 ──────────────────────────────────────────────────
   - ${{ if eq(parameters.deployApp2, true) }}:
-    - template: templates/app-stage.yml
+    - template: apps/app2/pipeline.yml
       parameters:
-        appName: 'app2'
         ${{ if eq(parameters.deployApp1, true) }}:
           dependsOnStage: 'App1'
         ${{ else }}:
