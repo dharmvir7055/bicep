@@ -9,44 +9,16 @@
     default: false
 
 trigger:
-    - none
-  # branches:
-  #   include:
-  #     - main
-  #     - develop
-  #     - feature/*
+  - none
 
 pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  - name: app1DevRG
-    value: 'az400'
-  - name: app1TestRG
-    value: 'az400'
-  - name: app1ProdRG
-    value: 'az400'
-
-  - name: app2DevRG
-    value: 'az400'
-  - name: app2TestRG
-    value: 'az400'
-  - name: app2ProdRG
-    value: 'az400'
-
-  - name: app1DevSC
+  - name: azureServiceConnection
     value: 'prod-azure-connection'
-  - name: app1TestSC
-    value: 'prod-azure-connection'
-  - name: app1ProdSC
-    value: 'prod-azure-connection'
-
-  - name: app2DevSC
-    value: 'prod-azure-connection'
-  - name: app2TestSC
-    value: 'prod-azure-connection'
-  - name: app2ProdSC
-    value: 'prod-azure-connection'
+  - name: resourceGroupName
+    value: 'az400'
 
 stages:
 
@@ -65,72 +37,21 @@ stages:
               echo "Triggered by   : $(Build.Reason)"
               echo "Source branch  : $(Build.SourceBranch)"
               echo "======================================"
-              if [ "${{ parameters.deployApp1 }}" = "False" ] && [ "${{ parameters.deployApp2 }}" = "False" ]; then
-                echo "NOTE: No apps were selected. Nothing will be deployed."
-                echo "      Re-run the pipeline and tick at least one checkbox."
-              fi
             displayName: 'Print selection'
 
+  # ── App 1 ──────────────────────────────────────────────────
   - ${{ if eq(parameters.deployApp1, true) }}:
-    - stage: App1
-      displayName: 'App 1'
-      dependsOn: Summary
-      jobs:
-        - template: templates/deploy-bicep-template.yml
-          parameters:
-            appName: 'app1'
-            environment: 'dev'
-            azureServiceConnection: $(app1DevSC)
-            resourceGroupName: $(app1DevRG)
+    - template: templates/app-stage.yml
+      parameters:
+        appName: 'app1'
+        dependsOnStage: 'Summary'
 
-        - template: templates/deploy-bicep-template.yml
-          parameters:
-            appName: 'app1'
-            environment: 'test'
-            azureServiceConnection: $(app1TestSC)
-            resourceGroupName: $(app1TestRG)
-            dependsOn: 'Deploy_app1_dev'
-
-        - template: templates/deploy-bicep-template.yml
-          parameters:
-            appName: 'app1'
-            environment: 'prod'
-            azureServiceConnection: $(app1ProdSC)
-            resourceGroupName: $(app1ProdRG)
-            dependsOn: 'Deploy_app1_test'
-
-    # -----------------------------------------------------------
-    # App 2 stage - dev -> test -> prod (sequential jobs)
-    # Runs in PARALLEL with App 1 stage.
-    # -----------------------------------------------------------
+  # ── App 2 ──────────────────────────────────────────────────
   - ${{ if eq(parameters.deployApp2, true) }}:
-    - stage: App2
-      displayName: 'App 2'
-      # If App1 was also selected, wait for it. Otherwise, run after Summary.
-      ${{ if eq(parameters.deployApp1, true) }}:
-        dependsOn: App1
-      ${{ else }}:
-        dependsOn: Summary
-      jobs:
-        - template: templates/deploy-bicep-template.yml
-          parameters:
-            appName: 'app2'
-            environment: 'dev'
-            azureServiceConnection: $(app2DevSC)
-            resourceGroupName: $(app2DevRG)
-
-        - template: templates/deploy-bicep-template.yml
-          parameters:
-            appName: 'app2'
-            environment: 'test'
-            azureServiceConnection: $(app2TestSC)
-            resourceGroupName: $(app2TestRG)
-            dependsOn: 'Deploy_app2_dev'
-
-        - template: templates/deploy-bicep-template.yml
-          parameters:
-            appName: 'app2'
-            environment: 'prod'
-            azureServiceConnection: $(app2ProdSC)
-            resourceGroupName: $(app2ProdRG)
-            dependsOn: 'Deploy_app2_test'
+    - template: templates/app-stage.yml
+      parameters:
+        appName: 'app2'
+        ${{ if eq(parameters.deployApp1, true) }}:
+          dependsOnStage: 'App1'
+        ${{ else }}:
+          dependsOnStage: 'Summary'
