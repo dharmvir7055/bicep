@@ -1,0 +1,26 @@
+﻿parameters:
+  - name: appName
+    type: string
+  - name: environments
+    type: object
+    default:
+      - name: dev
+        paramFile: dev.bicepparam
+      # - name: test
+      #   paramFile: test.bicepparam
+      # - name: prod
+      #   paramFile: prod.bicepparam
+  - name: serviceConnection
+    type: string
+  - name: resourceGroup
+    type: string
+
+jobs:
+  - ${{ each env in parameters.environments }}:
+    - template: deploy-infra.yml
+      parameters:
+        appName: ${{ parameters.appName }}
+        environment: ${{ env.name }}
+        bicepParamFile: ${{ env.paramFile }}
+        serviceConnection: ${{ parameters.serviceConnection }}
+        resourceGroup: ${{ parameters.resourceGroup }}

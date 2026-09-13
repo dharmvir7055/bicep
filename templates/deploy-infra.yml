@@ -1,0 +1,41 @@
+﻿parameters:
+  - name: appName
+    type: string
+  - name: environment
+    type: string
+  - name: bicepParamFile
+    type: string
+  - name: serviceConnection
+    type: string
+  - name: resourceGroup
+    type: string
+
+jobs:
+  - job: Deploy_${{ parameters.appName }}_${{ parameters.environment }}
+    displayName: 'Deploy ${{ parameters.appName }} - ${{ parameters.environment }}'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - task: AzureCLI@2
+        displayName: 'What-If: ${{ parameters.appName }} / ${{ parameters.environment }}'
+        inputs:
+          azureSubscription: ${{ parameters.serviceConnection }}
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az deployment group what-if \
+              --resource-group ${{ parameters.resourceGroup }} \
+              --template-file bicep/infra/main.bicep \
+              --parameters bicep/infra/${{ parameters.bicepParamFile }}
+
+      # - task: AzureCLI@2
+      #   displayName: 'Deploy Bicep - ${{ parameters.appName }} / ${{ parameters.environment }}'
+      #   inputs:
+      #     azureSubscription: ${{ parameters.serviceConnection }}
+      #     scriptType: 'bash'
+      #     scriptLocation: 'inlineScript'
+      #     inlineScript: |
+      #       az deployment group create \
+      #         --resource-group ${{ parameters.resourceGroup }} \
+      #         --template-file bicep/infra/main.bicep \
+      #         --parameters bicep/infra/${{ parameters.bicepParamFile }}

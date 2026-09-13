@@ -1,0 +1,50 @@
+﻿parameters:
+  - name: deployApp1
+    displayName: 'Deploy App 1 (Key Vault + App Service)'
+    type: boolean
+    default: false
+  - name: deployApp2
+    displayName: 'Deploy App 2 (Key Vault + App Service + Cosmos Container)'
+    type: boolean
+    default: false
+
+variables:
+  - name: serviceConnection
+    value: 'prod-azure-connection'
+  - name: resourceGroup
+    value: 'az400'
+
+jobs:
+  - job: Summary
+    displayName: 'Selection summary'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - script: |
+          echo "======================================"
+          echo "  Multi-App Deployment Summary"
+          echo "======================================"
+          echo "App 1 selected : ${{ parameters.deployApp1 }}"
+          echo "App 2 selected : ${{ parameters.deployApp2 }}"
+          echo "Triggered by   : $(Build.Reason)"
+          echo "Source branch  : $(Build.SourceBranch)"
+          echo "======================================"
+          if [ "${{ parameters.deployApp1 }}" = "False" ] && [ "${{ parameters.deployApp2 }}" = "False" ]; then
+            echo "NOTE: No apps were selected. Nothing will be deployed."
+            echo "      Re-run the pipeline and tick at least one checkbox."
+          fi
+        displayName: 'Print selection summary'
+
+  - ${{ if eq(parameters.deployApp1, true) }}:
+    - template: templates/deploy-all-envs.yml
+      parameters:
+        appName: app1
+        serviceConnection: $(serviceConnection)
+        resourceGroup: $(resourceGroup)
+
+  - ${{ if eq(parameters.deployApp2, true) }}:
+    - template: templates/deploy-all-envs.yml
+      parameters:
+        appName: app2
+        serviceConnection: $(serviceConnection)
+        resourceGroup: $(resourceGroup)
