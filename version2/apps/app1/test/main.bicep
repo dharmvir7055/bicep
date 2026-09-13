@@ -29,7 +29,7 @@ param linuxFxVersion string = 'DOTNET|8.0'
 @description('Environment tag')
 param environmentTag string
 
-module kv '../../modules/keyvault.bicep' = {
+module kv '../../../modules/keyvault.bicep' = {
   name: 'app1Kv-${environmentTag}'
   params: {
     keyVaultName: keyVaultName
@@ -37,7 +37,7 @@ module kv '../../modules/keyvault.bicep' = {
   }
 }
 
-module plan '../../modules/appservice-plan.bicep' = {
+module plan '../../../modules/appservice-plan.bicep' = {
   name: 'app1Plan-${environmentTag}'
   params: {
     planName: planName
@@ -47,7 +47,7 @@ module plan '../../modules/appservice-plan.bicep' = {
   }
 }
 
-module app '../../modules/appservice.bicep' = {
+module app '../../../modules/appservice.bicep' = {
   name: 'app1App-${environmentTag}'
   params: {
     appServiceName: appServiceName

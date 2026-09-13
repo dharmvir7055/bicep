@@ -53,7 +53,7 @@ param environmentTag string
 // @minValue(0)
 // param throughput int = 400
 
-module kv '../../modules/keyvault.bicep' = {
+module kv '../../../modules/keyvault.bicep' = {
   name: 'app2Kv-${environmentTag}'
   params: {
     keyVaultName: keyVaultName
@@ -61,7 +61,7 @@ module kv '../../modules/keyvault.bicep' = {
   }
 }
 
-module plan '../../modules/appservice-plan.bicep' = {
+module plan '../../../modules/appservice-plan.bicep' = {
   name: 'app2Plan-${environmentTag}'
   params: {
     planName: planName
@@ -71,7 +71,7 @@ module plan '../../modules/appservice-plan.bicep' = {
   }
 }
 
-module app '../../modules/appservice.bicep' = {
+module app '../../../modules/appservice.bicep' = {
   name: 'app2App-${environmentTag}'
   params: {
     appServiceName: appServiceName
@@ -84,7 +84,7 @@ module app '../../modules/appservice.bicep' = {
   }
 }
 
-// module container '../../modules/cosmos-container.bicep' = {
+// module container '../../../modules/cosmos-container.bicep' = {
 //   name: 'app2Container-${environmentTag}'
 //   params: {
 //     cosmosAccountName: cosmosAccountName

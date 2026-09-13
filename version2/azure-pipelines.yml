@@ -19,6 +19,8 @@ variables:
     value: 'prod-azure-connection'
   - name: resourceGroupName
     value: 'az400'
+  - name: bicepRoot                    # NEW
+    value: '$(System.DefaultWorkingDirectory)/version2'
 
 stages:
 
